@@ -22,7 +22,7 @@
         pkgs = import nixpkgs {
           inherit system;
           overlays = [
-            nixvim.overlays.default
+            self.overlays.default
           ];
         };
       in
@@ -30,8 +30,20 @@
         packages = {
           default = self.packages.${system}.naxvim;
 
-          naxvim = pkgs.callPackage ./package.nix { };
+          naxvim = pkgs.naxvim;
         };
       }
-    );
+    )
+    // {
+      overlays.default = self.overlays.naxvim;
+
+      overlays.naxvim =
+        final: prev:
+        (
+          {
+            naxvim = final.callPackage ./package.nix { };
+          }
+          // (nixvim.overlays.default final prev)
+        );
+    };
 }
