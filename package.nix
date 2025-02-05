@@ -49,6 +49,13 @@ let
         "x"
       ];
     };
+    "<C-a>" = {
+      val = ''vBot:"fyf:l"lyiwf:l"cyiw<cmd>ToggleTermToggleAll<cr><cmd>lua vim.cmd("e " .. vim.fn.getreg("f"))<cr><cmd>lua vim.cmd("cal cursor(" .. vim.fn.getreg("l") .. ", " .. vim.fn.getreg("c") .. ")")<cr>'';
+      desc = "Jump to file under cursor";
+      mode = [
+        "n"
+      ];
+    };
     "<M-j>" = {
       val = "4";
       desc = "4";
