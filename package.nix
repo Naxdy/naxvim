@@ -6,6 +6,10 @@
   nixfmt-rfc-style,
   vimPlugins,
   vscode-js-debug,
+  lazygit,
+  gh-dash,
+  jq,
+  gh,
 }:
 let
   js-i18n = vimUtils.buildVimPlugin {
@@ -315,9 +319,18 @@ let
           desc = "HTML Tags";
           mode = [ "v" ];
         };
+        "`" = {
+          val = "c``<Esc>P";
+          desc = "Backticks";
+          mode = [ "v" ];
+        };
       };
       g = {
         group = "Git";
+        o = {
+          val = "<cmd>lua require 'naxdy.terminal'.ghdash_toggle()<cr>";
+          desc = "GH Dash";
+        };
         h = {
           val = "<cmd>DiffviewFileHistory %<cr>";
           desc = "File History";
@@ -339,7 +352,7 @@ let
           desc = "Show Full Blame";
         };
         c = {
-          val = "\"cye<cmd>exe 'DiffviewOpen '.@c.'^!'<cr>";
+          val = "\"cyiw<cmd>exe 'DiffviewOpen '.@c.'^!'<cr>";
           desc = "View Commit Under Cursor";
           mode = [ "n" ];
         };
@@ -576,6 +589,13 @@ nixvim.makeNixvim {
 
   extraConfigLua = builtins.readFile ./config.lua;
 
+  extraPackages = [
+    jq # js-i18n needs this
+    lazygit
+    gh-dash
+    gh
+  ];
+
   # extraFiles = {
   #   "queries/rust/highlights.scm".text = ''
   #     ;; extends
@@ -589,92 +609,28 @@ nixvim.makeNixvim {
   #   '';
   # };
 
-  extraFiles = {
-    "queries/svelte/highlights.scm".text = ''
-      ;; extends
+  extraFiles =
+    {
+      "queries/svelte/highlights.scm".text = ''
+        ;; extends
 
-      (else_if_block (else_if_start ((block_tag) @keyword.conditional) condition: (svelte_raw_text)))
-    '';
-    "lua/naxdy/format.lua".text = ''
-      local M = {}
-
-      M.format = function()
-        local can_format = not require "lsp-format".disabled
-
-        if can_format then
-          vim.lsp.buf.format()
-        end
-      end
-
-      return M
-    '';
-    "lua/naxdy/lines.lua".text = ''
-      local M = {}
-
-      M.toggle = function()
-        if vim.diagnostic.config().virtual_lines then
-          vim.diagnostic.config({
-            virtual_text = true,
-            virtual_lines = false
-          })
-        else
-          vim.diagnostic.config({
-            virtual_text = false,
-            virtual_lines = true
-          })
-        end
-      end
-
-      return M
-    '';
-    "lua/naxdy/terminal.lua".text = ''
-      local M = {}
-
-      M.lazygit_toggle = function()
-        local Terminal = require("toggleterm.terminal").Terminal
-        local lazygit = Terminal:new {
-          cmd = "lazygit",
-          hidden = true,
-          direction = "float",
-          -- float_opts = {
-          --   border = "none",
-          --   width = 100000,
-          --   height = 100000,
-          --   zindex = 200,
-          -- },
-          on_open = function(_)
-            vim.cmd "startinsert!"
-          end,
-          on_close = function(_) end,
-          count = 99,
-        }
-        lazygit:toggle()  
-      end
-
-      M.lazygit_filehistory = function()
-        local Terminal = require "toggleterm.terminal".Terminal
-        local lazygit = Terminal:new {
-          cmd = "lazygit --filter \"" .. vim.fn.expand('%') .. "\"" ,
-          hidden = true,
-          direction = "float",
-          -- float_opts = {
-          --   border = "none",
-          --   width = 100000,
-          --   height = 100000,
-          --   zindex = 200,
-          -- },
-          on_open = function(_)
-            vim.cmd "startinsert!"
-          end,
-           on_close = function(_) end,
-            count = 101,
-          }
-          lazygit:toggle() 
-        end
-
-        return M
-    '';
-  };
+        (else_if_block (else_if_start ((block_tag) @keyword.conditional) condition: (svelte_raw_text)))
+      '';
+    }
+    // (builtins.listToAttrs (
+      map
+        (e: {
+          name = "lua/naxdy/${e.name}";
+          value = {
+            source = ./naxdy/${e.name};
+          };
+        })
+        (
+          builtins.filter (e: e.value == "regular") (
+            lib.mapAttrsToList (name: value: { inherit name value; }) (builtins.readDir ./naxdy)
+          )
+        )
+    ));
 
   colorschemes.vscode = {
     enable = true;
@@ -1114,7 +1070,21 @@ nixvim.makeNixvim {
       enable = true;
       inlayHints = true;
       servers = {
-        gopls.enable = true;
+        gopls = {
+          enable = true;
+          extraOptions = {
+            init_options = {
+              semanticTokens = true;
+              hints = {
+                assignVariableTypes = true;
+                constantValues = true;
+                functionTypeParameters = true;
+                parameterNames = true;
+                rangeVariableTypes = true;
+              };
+            };
+          };
+        };
         gdscript = {
           enable = true;
           package = null;
