@@ -1114,6 +1114,7 @@ nixvim.makeNixvim {
       enable = true;
       inlayHints = true;
       servers = {
+        gopls.enable = true;
         gdscript = {
           enable = true;
           package = null;
