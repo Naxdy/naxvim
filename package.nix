@@ -982,6 +982,13 @@ nixvim.makeNixvim {
     };
     dap-ui = {
       enable = true;
+      settings = {
+        mappings.expand = [
+          "<CR>"
+          "x"
+          "<2-LeftMouse>"
+        ];
+      };
     };
     dap-virtual-text = {
       enable = true;
