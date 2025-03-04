@@ -10,6 +10,7 @@
   gh-dash,
   jq,
   gh,
+  pkgs,
 }:
 let
   js-i18n = vimUtils.buildVimPlugin {
@@ -473,6 +474,10 @@ let
     ) attr);
 in
 nixvim.makeNixvim {
+  nixpkgs = {
+    inherit pkgs;
+  };
+
   opts = {
     number = true;
     relativenumber = true;
