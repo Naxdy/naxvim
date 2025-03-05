@@ -644,6 +644,9 @@ nixvim.makeNixvim {
         vscDisabledBlue = "#A9B7C6";
         vscPink = "#B392F0";
         vscYellowOrange = "#FFC66D";
+        vscCursorDarkDark = "#222222";
+        vscPopupBack = "#272727";
+        vscPopupHighlightBlue = "#004b72";
       };
     };
     luaConfig.post = builtins.readFile ./highlights.lua;
