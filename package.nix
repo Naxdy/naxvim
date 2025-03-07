@@ -7,6 +7,7 @@
   vimPlugins,
   vscode-js-debug,
   lazygit,
+  shellcheck,
   gh-dash,
   jq,
   gh,
@@ -597,6 +598,7 @@ nixvim.makeNixvim {
   extraPackages = [
     jq # js-i18n needs this
     lazygit
+    shellcheck
     gh-dash
     gh
   ];
@@ -702,6 +704,7 @@ nixvim.makeNixvim {
     treesitter = {
       enable = true;
       settings = {
+        indent.enable = lib.mkForce false;
         highlight = {
           enable = true;
           additional_vim_regex_highlighting = true;
@@ -1085,6 +1088,10 @@ nixvim.makeNixvim {
       enable = true;
       inlayHints = true;
       servers = {
+        yamlls.enable = true;
+        slint_lsp.enable = true;
+        terraform_lsp.enable = true;
+        bashls.enable = true;
         gopls = {
           enable = true;
           extraOptions = {
