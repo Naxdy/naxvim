@@ -12,6 +12,7 @@
   jq,
   gh,
   pkgs,
+  lldb,
 }:
 let
   js-i18n = vimUtils.buildVimPlugin {
@@ -601,6 +602,7 @@ nixvim.makeNixvim {
     shellcheck
     gh-dash
     gh
+    lldb
   ];
 
   # extraFiles = {
