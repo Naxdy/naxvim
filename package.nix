@@ -12,7 +12,8 @@
   jq,
   gh,
   pkgs,
-  lldb,
+  vscode-extensions,
+  gdb,
 }:
 let
   js-i18n = vimUtils.buildVimPlugin {
@@ -602,7 +603,6 @@ nixvim.makeNixvim {
     shellcheck
     gh-dash
     gh
-    lldb
   ];
 
   # extraFiles = {
@@ -952,10 +952,19 @@ nixvim.makeNixvim {
     dap = {
       enable = true;
       adapters = {
+        executables = {
+          gdb = {
+            command = "${gdb}/bin/gdb";
+            args = [
+              "--quiet"
+              "--interpreter=dap"
+            ];
+          };
+        };
         servers =
           let
             node = {
-              host = "localhost";
+              host = "127.0.0.1";
               port = ''''${port}'';
               executable = {
                 command = "${vscode-js-debug}/bin/js-debug";
@@ -964,6 +973,17 @@ nixvim.makeNixvim {
             };
           in
           {
+            lldb = {
+              host = "127.0.0.1";
+              port = ''''${port}'';
+              executable = {
+                command = "${vscode-extensions.vadimcn.vscode-lldb}/share/vscode/extensions/vadimcn.vscode-lldb/adapter/codelldb";
+                args = [
+                  "--port"
+                  ''''${port}''
+                ];
+              };
+            };
             pwa-node = node;
             node-terminal = node;
             godot = {
@@ -973,6 +993,89 @@ nixvim.makeNixvim {
           };
       };
       configurations = {
+        rust = [
+          {
+            name = "Debug";
+            type = "lldb";
+            request = "launch";
+            cwd = ''''${workspaceFolder}'';
+            stopOnEntry = false;
+            program.__raw = ''
+              function(selection)
+                local function read_target()
+                   local cwd = string.format("%s%s", vim.fn.getcwd(), sep)
+                   return vim.fn.input("Path to executable: ", cwd, "file")
+                end
+                local function compiler_error(input)
+                   local _, json = pcall(vim.fn.json_decode, input)
+
+                   if type(json) == "table" and json.reason == "compiler-message" then
+                      return json.message.rendered
+                   end
+
+                   return nil
+                end
+                local function compiler_target(input)
+                   local _, json = pcall(vim.fn.json_decode, input)
+
+                   if
+                      type(json) == "table"
+                      and json.reason == "compiler-artifact"
+                      and json.executable ~= nil
+                      and (vim.tbl_contains(json.target.kind, "bin") or json.profile.test)
+                   then
+                      return json.executable
+                   end
+
+                   return nil
+                end
+                local function list_targets(selection)
+                   local arg = string.format("--%s", selection or "bins")
+                   local cmd = { "cargo", "build", arg, "--quiet", "--message-format", "json" }
+                   local out = vim.fn.systemlist(cmd)
+
+                   if vim.v.shell_error ~= 0 then
+                      local errors = vim.tbl_map(compiler_error, out)
+                      vim.notify(table.concat(errors, "\n"), vim.log.levels.ERROR)
+                      return nil
+                   end
+
+                   local function filter(e)
+                      return e ~= nil
+                   end
+
+                   return vim.tbl_filter(filter, vim.tbl_map(compiler_target, out))
+                end
+
+                local targets = list_targets(selection)
+
+                if targets == nil then
+                  return nil
+                end
+
+                if #targets == 0 then
+                  return read_target()
+                end
+
+                if #targets == 1 then
+                  return targets[1]
+                end
+
+                local options = { "Select a target:" }
+
+                for index, target in ipairs(targets) do
+                  local parts = vim.split(target, sep, { trimempty = true })
+                  local option = string.format("%d. %s", index, parts[#parts])
+                  table.insert(options, option)
+                end
+
+                local choice = vim.fn.inputlist(options)
+
+                return targets[choice]
+              end
+            '';
+          }
+        ];
         gdscript = [
           {
             type = "godot";
