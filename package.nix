@@ -14,6 +14,7 @@
   pkgs,
   vscode-extensions,
   gdb,
+  inferno,
 }:
 let
   js-i18n = vimUtils.buildVimPlugin {
@@ -25,6 +26,22 @@ let
       repo = "js-i18n.nvim";
       rev = "2d826baa2b1200eaebf46f138ebd615092d91a78";
       hash = "sha256-RMEKaKQ5jiTnTjpWvMO00CsjxUwb8A+Q7ZgLp0XB4Ho=";
+    };
+  };
+
+  # profiler
+  plenary = vimUtils.buildVimPlugin {
+    pname = "plenary";
+    version = "2025-03-17";
+    nvimSkipModule = [
+      "plenary.neorocks.init"
+      "plenary._meta._luassert"
+    ];
+    src = fetchFromGitHub {
+      owner = "nvim-lua";
+      repo = "plenary.nvim";
+      rev = "857c5ac632080dba10aae49dba902ce3abf91b35";
+      hash = "sha256-8FV5RjF7QbDmQOQynpK7uRKONKbPRYbOPugf9ZxNvUs=";
     };
   };
 
@@ -390,11 +407,11 @@ let
         p = {
           group = "Profile";
           s = {
-            val = "<cmd>profile start /tmp/nvim-profile.log<cr><cmd>profile func *<cr><cmd>profile file *<cr>";
+            val = "<cmd>lua require('plenary.profile').start(\"/tmp/plenary-profile.log\", { flame = true })<cr>";
             desc = "Start";
           };
           e = {
-            val = "<cmd>profile stop<cr><cmd>e /tmp/nvim-profile.log<cr>";
+            val = "<cmd>lua require('plenary.profile').stop()<cr><cmd>!${inferno}/bin/inferno-flamegraph /tmp/plenary-profile.log > /tmp/plenary-flame.svg<cr><cmd>e /tmp/plenary-profile.log<cr>";
             desc = "End & View";
           };
         };
@@ -659,6 +676,7 @@ nixvim.makeNixvim {
   extraPlugins = [
     vimPlugins.dropbar-nvim
     js-i18n
+    plenary
     vimPlugins.telescope-dap-nvim
     vimPlugins.nvim-scrollbar
     (vimUtils.buildVimPlugin {
