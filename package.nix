@@ -161,8 +161,8 @@ let
         };
       };
       w = {
-        val = "<cmd>lua require 'naxdy.format'.format()<cr><cmd>w<cr>";
-        desc = "Save File & Format";
+        val = "<cmd>w<cr>";
+        desc = "Save File";
       };
       d = {
         group = "Debug";
@@ -962,10 +962,9 @@ nixvim.makeNixvim {
     };
     none-ls = {
       enable = true;
-      sources.formatting.prettier = {
-        enable = true;
-        disableTsServerFormatter = true;
-      };
+      settings.sources = [
+        "require('naxdy.format').treefmt"
+      ];
     };
     dap = {
       enable = true;
@@ -982,7 +981,7 @@ nixvim.makeNixvim {
         servers =
           let
             node = {
-              host = "127.0.0.1";
+              host = "localhost";
               port = ''''${port}'';
               executable = {
                 command = "${vscode-js-debug}/bin/js-debug";
@@ -1337,15 +1336,6 @@ nixvim.makeNixvim {
           };
         };
         pyright.enable = true;
-      };
-    };
-    lsp-format = {
-      enable = true;
-      settings = {
-        typescript = {
-          force = true;
-          sync = true;
-        };
       };
     };
   };

@@ -46,6 +46,8 @@ require 'browsher'.setup({
   },
 })
 
+require 'naxdy.format'.setup()
+
 -- autosave
 local group = vim.api.nvim_create_augroup('autosave', {})
 
@@ -53,11 +55,7 @@ vim.api.nvim_create_autocmd('User', {
   pattern = 'AutoSaveWritePre',
   group = group,
   callback = function(opts)
-    if opts.data.saved_buffer ~= nil and not (require 'lsp-format'.disabled) then
-      vim.lsp.buf.format({
-        bufnr = opts.data.saved_buffer
-      })
-    end
+    require 'naxdy.format'.format({ buf = opts.data.saved_buffer, sync = true })
   end
 })
 
