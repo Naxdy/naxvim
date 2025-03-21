@@ -515,7 +515,9 @@ nixvim.makeNixvim {
     splitbelow = true;
     splitright = true;
     swapfile = false;
-    foldmethod = "manual";
+    foldmethod = "indent";
+    # best compatibility with most languages
+    foldenable = false;
     foldexpr = "";
     fileencoding = "utf-8";
     backup = false;
