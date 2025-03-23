@@ -1021,6 +1021,7 @@ nixvim.makeNixvim {
             stopOnEntry = false;
             program.__raw = ''
               function(selection)
+                local sep = package.config:sub(1, 1)
                 local function read_target()
                    local cwd = string.format("%s%s", vim.fn.getcwd(), sep)
                    return vim.fn.input("Path to executable: ", cwd, "file")
