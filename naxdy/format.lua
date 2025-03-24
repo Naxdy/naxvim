@@ -149,21 +149,17 @@ M.format = function(options)
 
   local clients = vim.lsp.get_clients({ bufnr = bufnr })
 
-  -- if available, prioritize treefmt over everything else, since in this case we
-  -- will have set it up to support every filetype available in the project
+  -- if available, prioritize treefmt over everything else, by making it go last
   if has_treefmt then
     local treefmt_client = nil
-    for _, client in ipairs(clients) do
-      if client.name == "null-ls" then
-        treefmt_client = client
+    for i = 1, #clients do
+      if clients[i].name == "null-ls" then
+        treefmt_client = table.remove(clients, i)
         break
       end
     end
 
-    if treefmt_client ~= nil then
-      M._format_single(bufnr, treefmt_client, {}, options.sync or false)
-      return
-    end
+    table.insert(clients, treefmt_client)
   end
 
   if #clients > 0 then
