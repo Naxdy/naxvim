@@ -275,6 +275,10 @@ let
       };
       l = {
         group = "LSP";
+        i = {
+          val = "<cmd>lua vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())<cr>";
+          desc = "Toggle inlay hints";
+        };
         k = {
           val = "<cmd>lua vim.diagnostic.open_float()<cr>";
           desc = "Show line diagnostics";
