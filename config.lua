@@ -93,7 +93,10 @@ local tfstate_to_json = {
   callback = function()
     local filename = vim.fn.expand('%')
     if vim.endswith(filename, ".tfstate") then
-      vim.opt.syntax = 'json'
+      vim.opt.filetype = 'json'
+    end
+    if vim.endswith(filename, ".mdx") then
+      vim.opt.filetype = 'markdown'
     end
   end
 }
