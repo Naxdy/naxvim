@@ -1199,9 +1199,6 @@ nixvim.makeNixvim {
         open_mapping = "[[<C-Bslash>]]";
       };
     };
-    lsp-status = {
-      enable = true;
-    };
     colorizer = {
       enable = true;
       settings = {
