@@ -1246,7 +1246,20 @@ nixvim.makeNixvim {
         };
         texlab.enable = true;
         clangd.enable = true;
-        eslint.enable = true;
+        eslint = {
+          enable = true;
+          filetypes = [
+            "js"
+            "ts"
+            "typescript"
+            "javascript"
+            "tsx"
+            "jsx"
+            "typescriptreact"
+            "javascriptreact"
+            "svelte"
+          ];
+        };
         tailwindcss.enable = true;
         graphql = {
           filetypes = [
