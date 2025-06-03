@@ -1347,6 +1347,10 @@ nixvim.makeNixvim {
         qmlls = {
           enable = true;
         };
+        luau_lsp = {
+          enable = true;
+          package = pkgs.luau-lsp;
+        };
         lua_ls = {
           enable = true;
           onAttach = {
