@@ -15,6 +15,7 @@
   vscode-extensions,
   gdb,
   inferno,
+  luau-lsp,
 }:
 let
   js-i18n = vimUtils.buildVimPlugin {
@@ -626,6 +627,7 @@ nixvim.makeNixvim {
     shellcheck
     gh-dash
     gh
+    luau-lsp
   ];
 
   # extraFiles = {
