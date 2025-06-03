@@ -1350,9 +1350,15 @@ nixvim.makeNixvim {
         luau_lsp = {
           enable = true;
           package = pkgs.luau-lsp;
+          filetypes = [
+            "luau"
+          ];
         };
         lua_ls = {
           enable = true;
+          filetypes = [
+            "lua"
+          ];
           onAttach = {
             function = builtins.readFile ./lspconfig.lua;
           };
