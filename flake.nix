@@ -3,65 +3,69 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
-    nixpkgs-stable.url = "github:nixos/nixpkgs?ref=release-24.11";
 
-    flake-utils.url = "github:numtide/flake-utils";
+    nixvim = {
+      url = "github:nix-community/nixvim";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
-    nixvim.url = "github:nix-community/nixvim";
+    sscli = {
+      url = "github:Naxdy/sscli";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
     {
       self,
       nixpkgs,
-      nixpkgs-stable,
-      flake-utils,
       nixvim,
+      sscli,
     }:
-    flake-utils.lib.eachDefaultSystem (
-      system:
-      let
-        pkgs = import nixpkgs {
-          inherit system;
-          overlays = [
-            self.overlays.default
-          ];
-        };
+    let
+      supportedSystems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
 
-      in
-      {
-        packages = {
+      forEachSupportedSystem =
+        f:
+        nixpkgs.lib.genAttrs supportedSystems (
+          system:
+          let
+            pkgs = import nixpkgs {
+              inherit system;
+              overlays = [
+                self.overlays.default
+              ];
+            };
+          in
+          f {
+            inherit system pkgs;
+          }
+        );
+    in
+    {
+      packages = forEachSupportedSystem (
+        { pkgs, system, ... }:
+        {
           default = self.packages.${system}.naxvim;
 
           naxvim = pkgs.naxvim;
-        };
-      }
-    )
-    // {
+        }
+      );
+
       overlays.default = self.overlays.naxvim;
 
       overlays.naxvim =
         final: prev:
         (
-          let
-            pkgs-stable = import nixpkgs-stable {
-              system = final.hostPlatform.system;
-            };
-          in
           {
-            naxvim = final.callPackage ./package.nix { };
-
-            nodePackages =
-              # TODO: graphql-language-service-cli is currently missing in nixos unstable
-              if !(prev.nodePackages ? graphql-language-service-cli) then
-                (
-                  prev.nodePackages
-                  // {
-                    inherit (pkgs-stable.nodePackages) graphql-language-service-cli;
-                  }
-                )
-              else
-                prev.nodePackages;
+            naxvim = final.callPackage ./package.nix {
+              sscli = sscli.packages.${final.system}.default;
+            };
           }
           // (nixvim.overlays.default final prev)
         );
