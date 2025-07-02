@@ -1222,7 +1222,7 @@ nixvim.makeNixvim {
       servers = {
         yamlls.enable = true;
         slint_lsp.enable = true;
-        terraform_lsp.enable = true;
+        terraformls.enable = true;
         bashls.enable = true;
         gopls = {
           enable = true;
