@@ -103,3 +103,11 @@ local tfstate_to_json = {
 
 vim.api.nvim_create_autocmd('BufNewFile', tfstate_to_json)
 vim.api.nvim_create_autocmd('BufRead', tfstate_to_json)
+
+vim.filetype.add({
+  extension = {
+    tf = 'opentofu'
+  }
+})
+
+vim.treesitter.language.register('terraform', 'opentofu')

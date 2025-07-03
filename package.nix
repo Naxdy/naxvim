@@ -1,23 +1,24 @@
 {
-  nixvim,
-  vimUtils,
   fetchFromGitHub,
-  lib,
-  nixfmt-rfc-style,
-  vimPlugins,
-  vscode-js-debug,
-  lazygit,
-  shellcheck,
-  gh-dash,
-  jq,
-  gh,
-  pkgs,
-  vscode-extensions,
   gdb,
+  gh,
+  gh-dash,
   inferno,
+  jq,
+  lazygit,
+  lib,
   luau-lsp,
-  sscli,
+  nixfmt-rfc-style,
+  nixvim,
   opencode,
+  pkgs,
+  shellcheck,
+  sscli,
+  tofu-ls,
+  vimPlugins,
+  vimUtils,
+  vscode-extensions,
+  vscode-js-debug,
 }:
 let
   js-i18n = vimUtils.buildVimPlugin {
@@ -1222,7 +1223,17 @@ nixvim.makeNixvim {
       servers = {
         yamlls.enable = true;
         slint_lsp.enable = true;
-        terraformls.enable = true;
+        terraformls = {
+          enable = true;
+          package = tofu-ls;
+          filetypes = [
+            "opentofu"
+          ];
+          cmd = [
+            "tofu-ls"
+            "serve"
+          ];
+        };
         bashls.enable = true;
         gopls = {
           enable = true;
