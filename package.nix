@@ -727,6 +727,12 @@ nixvim.makeNixvim {
     };
     diffview = {
       enable = true;
+      view = {
+        mergeTool = {
+          layout = "diff4_mixed";
+          winbarInfo = true;
+        };
+      };
       package = vimUtils.buildVimPlugin {
         pname = "diffview.nvim";
         version = "naxdy";
